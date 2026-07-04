@@ -566,31 +566,47 @@ def analyze_stock(symbol):
         target_mult = profile.get("target_pct", 0.15)
         stop_loss_mult = profile.get("stop_loss_pct", 0.05)
         
-        # 戰術規劃
-        far_from_support = p_last > p_bottom * (1 + stop_loss_mult * 2.5)
+        # === 戰略佈局：跟「體質」綁一起，不值得的就明講不佈局(不再每檔都喊逢回分批) ===
+        q_grade, q_reason = _diamond_cache.get(cleaned, ("資料不足", "抓不到基本面"))
         high_60d = float(high.tail(60).max())
-        
-        if far_from_support:
-            strategy_desc = "▲ 股價已大幅遠離轉折底部 (正乖離大，適合『有跌就買一點，有漲就賣一點』的網格分批吸納戰術)"
-            buy_range = f"現價至月線 {ma20:.2f} 之間，逢回踩分批微量吸納"
-            stop_loss = f"{p_bottom:.2f} 元 (中線防線)"
-            target_val = f"{round(p_last * (1 + target_mult * 0.4), 2):.2f} ~ {round(p_last * (1 + target_mult * 0.8), 2):.2f} 元 (逢高分批獲利)"
-        else:
-            stop_loss = f"{p_bottom:.2f} 元 (近期前低防守)"
-            buy_range = f"{round(p_bottom * (1 + stop_loss_mult * 0.3), 2):.2f} ~ {round(p_bottom * (1 + stop_loss_mult * 0.8), 2):.2f} 元 (底部與密集區下軌分批佈局)"
-            
-            if p_last < bin_left:
-                strategy_desc = "■ 股價低於成交密集區 (處於套牢區下方，反彈面臨解套賣壓)"
-                target_val = f"{p_poc:.2f} 元 (挑戰量能密集壓力POC)"
-            elif p_last > bin_right:
-                strategy_desc = "★ 股價站上成交密集區 (籌碼清洗完畢，密集區轉為強力支撐)"
-                target_val = f"{round(max(high_60d, p_last * (1 + target_mult)), 2):.2f} 元以上 (站穩密集區，上看波段)"
-            else:
-                strategy_desc = "◆ 股價處於成交密集整理區 (籌碼反覆換手糾纏中)"
-                target_val = f"{round(p_poc * (1 + target_mult * 0.4), 2):.2f} ~ {round(p_poc * (1 + target_mult * 0.8), 2):.2f} 元"
+        gap_ma20 = (p_last - ma20) / ma20 * 100 if ma20 else 0.0
 
-        if chip_concent > 8 and total_inst > 0:
-            strategy_desc += " + [🔥 法人強勢鎖碼]"
+        # 只有體質過關(真鑽石/復甦/估值透支/老鑽石)才值得「佈局」；石頭/鍍金/賠錢=不佈局
+        worth_buy = any(k in q_grade for k in ("真鑽石", "復甦", "估值透支", "老鑽石"))
+        if "真鑽石" in q_grade:
+            act = "體質好、可長抱，回檔就是撿貨"
+        elif "復甦" in q_grade:
+            act = "景氣循環轉機，只在拉回撿、賺波段別追高"
+        elif "估值透支" in q_grade:
+            act = "有賺但股價跑前面，拉回分批、別重壓、盯財報兌現"
+        elif "老鑽石" in q_grade:
+            act = "體質好但成長停，中長線可、別重壓"
+        else:
+            act = ""
+
+        if not worth_buy:
+            if "鍍金" in q_grade:
+                strategy_desc = "🚫 不值得佈局：公司在賠錢、純題材炒。要碰只能極短線搶反彈(非佈局)，套住沒人救。"
+            elif "資料不足" in q_grade:
+                strategy_desc = "❓ 體質資料不足，先不給佈局點、別亂進。"
+            else:
+                strategy_desc = "🚫 不值得佈局：體質是石頭(跌破年線/衰退)，反彈是逃命波、不是機會。"
+            buy_range = "— 不佈局（體質不夠，別買）"
+            stop_loss = f"{p_bottom:.1f}（真要短搶才設這條，跌破就走）"
+            target_val = "—"
+        else:
+            if p_last <= ma20 * 1.01:
+                strategy_desc = f"🟢 現在就在佈局區：已回到月線附近。{act}。"
+            elif gap_ma20 <= 8:
+                strategy_desc = f"🟡 接近佈局區：離月線 +{gap_ma20:.0f}%，等拉回或小量試。{act}。"
+            else:
+                strategy_desc = f"⏳ 目前偏高：離月線 +{gap_ma20:.0f}%，別追高，等拉回再撿。{act}。"
+            buy_range = f"月線 {ma20:.1f}（淺回撿）／季線 {ma60:.1f}（深回、較好價）"
+            stop_loss = f"季線 {ma60:.1f} 跌破站不回才走（前低 {p_bottom:.1f}）"
+            target_val = f"{max(high_60d, p_last * (1 + target_mult)):.1f}（前高／波段目標）"
+
+        if worth_buy and chip_concent > 8 and total_inst > 0:
+            strategy_desc += " ＋法人正在鎖碼(加分)"
             
         # 特別警示標籤
         extra_badges = []
@@ -602,9 +618,6 @@ def analyze_stock(symbol):
             extra_badges.append("⚔️ 超跌區")
         elif rsi_val > 70:
             extra_badges.append("🌋 超買區")
-
-        # 體質判斷：直接讀「循序抓好」的快取，不在多執行緒裡抓基本面(會被 yfinance 擋成賠錢誤判)
-        q_grade, q_reason = _diamond_cache.get(cleaned, ("資料不足", "抓不到基本面"))
 
         return {
             "symbol": cleaned,
@@ -813,7 +826,7 @@ def build_dashboard():
                 </div>
                 
                 <div class="layout-strategy-box">
-                    <div class="strat-title">🎯 戰略佈局規劃</div>
+                    <div class="strat-title">🎯 值得佈局點（依體質判斷）</div>
                     <div class="strat-desc">{r['strategy_desc']}</div>
                     <div class="strat-grid">
                         <div class="strat-item">
