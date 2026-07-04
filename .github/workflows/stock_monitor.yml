@@ -1,0 +1,69 @@
+name: Stock Monitor Cloud
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: '執行模式：evening（收盤重點）或 intraday（獵殺與籌碼掃描）'
+        default: 'intraday'
+  push:
+    branches: [main]
+    paths: ['.github/workflows/stock_monitor.yml']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Stock Monitor
+        run: |
+          # 判斷目前時間決定模式 (如果不是手動觸發)
+          HOUR=$(date +%H)
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            if [ "$HOUR" -eq "12" ]; then
+              RUN_MODE="evening"
+            else
+              RUN_MODE="intraday"
+            fi
+          else
+            RUN_MODE="${{ github.event.inputs.mode }}"
+          fi
+
+          if [ "$RUN_MODE" = "intraday" ]; then
+            echo "Mode: Intraday Hunter & Chip Scan"
+            python cold_blooded_hunter.py
+            python panic_bottom_hunter.py
+            python cloud_notifier.py
+          else
+            echo "Mode: Evening Closing Report"
+            python cloud_notifier.py evening
+          fi
+
+      - name: Generate static dashboard HTML
+        run: |
+          python holdings_radar.py
+          python add_zone.py
+
+      - name: Commit and push updated dashboard HTML
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html add_zone.html
+          git diff-index --quiet HEAD || (git commit -m "Auto-update stock dashboard HTML" && git push)
+# 手動觸發重生網頁 2026-07-02 新增加碼區頁
+# 觸發重生 2026-07-03 加碼區加入全部持股(19檔)+多空排列/糾結/過熱判斷修正
+# 觸發重生 2026-07-03b 加.nojekyll修Pages部署失敗;移除台新目標頁(不再使用)
+# 觸發重生 2026-07-03c 雷達每檔加部位標籤(持股/空手等機會/汰弱要賣);加碼區加入空手等機會股

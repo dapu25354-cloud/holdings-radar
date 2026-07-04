@@ -1,0 +1,18 @@
+name: Test Telegram Notification
+# Last re-trigger: 2026-05-17 verifying new token after BotFather revoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/test_telegram.yml']
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Telegram test message
+        run: |
+          echo "Telegram notifications have been deprecated and disabled per user request."
+          echo "This workflow will no longer send messages."
+          exit 0
