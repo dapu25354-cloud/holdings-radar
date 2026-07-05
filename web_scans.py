@@ -95,7 +95,7 @@ SHELL_TPL = """<!DOCTYPE html>
   .homebtn{color:#58a6ff;font-weight:700;font-size:15px;cursor:pointer;white-space:nowrap}
   .homebtn:hover{text-decoration:underline}
   #curtitle{font-weight:700;font-size:16px;color:#e6edf3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  #stk{appearance:none;-webkit-appearance:none;background:transparent;border:none;color:transparent;font-size:0;text-indent:-999px;cursor:pointer;width:30px;height:30px;padding:0;margin-left:auto;flex:0 0 auto;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="13" height="9"><path d="M0 0l6.5 9 6.5-9z" fill="%2358a6ff"/></svg>');background-repeat:no-repeat;background-position:center}
+  #stk{appearance:none;-webkit-appearance:none;background:transparent;border:none;color:transparent;font-size:0;text-indent:-999px;cursor:pointer;width:26px;height:28px;padding:0;margin-left:-6px;flex:0 0 auto;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="13" height="9"><path d="M0 0l6.5 9 6.5-9z" fill="%2358a6ff"/></svg>');background-repeat:no-repeat;background-position:center}
   #stk option{background:#161b22;color:#e6edf3;font-size:14px;text-indent:0;font-weight:400}
   iframe{flex:1 1 auto;width:100%;border:0;background:#0d1117}
 </style></head><body>
