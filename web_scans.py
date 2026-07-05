@@ -97,8 +97,7 @@ SHELL_TPL = """<!DOCTYPE html>
   .tab.active{color:#fff;background:#1f6feb;border-color:#1f6feb}
   .stkrow{display:flex;align-items:center;gap:8px;padding:8px 2px 6px}
   .stkrow label{color:#8b949e;font-size:13px;white-space:nowrap}
-  #stk{appearance:none;-webkit-appearance:none;background:transparent;border:none;color:#58a6ff;text-decoration:underline;text-underline-offset:3px;cursor:pointer;font-size:15px;font-weight:700;padding:2px 18px 2px 4px;max-width:170px;align-self:center;margin-left:2px;flex:0 0 auto;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="7"><path d="M0 0l5 7 5-7z" fill="%2358a6ff"/></svg>');background-repeat:no-repeat;background-position:right center}
-  #stk:hover{color:#79c0ff}
+  #stk{appearance:none;-webkit-appearance:none;background:transparent;border:none;color:transparent;cursor:pointer;width:26px;padding:2px;align-self:center;margin-left:2px;flex:0 0 auto;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8"><path d="M0 0l6 8 6-8z" fill="%2358a6ff"/></svg>');background-repeat:no-repeat;background-position:center}
   #stk option{background:#161b22;color:#e6edf3;font-weight:400}
   iframe{flex:1 1 auto;width:100%;border:0;background:#0d1117}
 </style></head><body>
