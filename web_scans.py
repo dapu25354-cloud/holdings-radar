@@ -167,26 +167,26 @@ TEXT_TOOLS = [
     ("🐺 第二腳獵殺", "secondleg.html", lambda: second_leg_hunter.run_hunter()),
 ]
 
-# 首頁的工具選單(分組)：(檔案, 顯示名, 一句說明)
+# 首頁九宮格：(檔案, emoji, 顯示名, 短說明, 主色)
 HOME_GROUPS = [
-    ("📊 每日盯盤", [
-        ("radar.html", "庫存股雷達", "每檔短線強弱＋體質(真鑽石/石頭)"),
-        ("add_zone.html", "🔒 加碼區", "拉回到哪可以加碼(私人，需密碼)"),
-        ("premarket.html", "盤前國際盤", "昨夜美股/油價 → 台股開盤偏多或偏空"),
-        ("chips.html", "法人籌碼", "外資/投信買賣超"),
-        ("rotation.html", "輪動雷達", "類股分組強弱、看資金輪動"),
-        ("cpo.html", "CPO觀察", "矽光子觀察股(華星光/上詮/日月光)"),
+    ("📊 每日盯盤", "#1f6feb", [
+        ("radar.html", "📡", "庫存股雷達", "強弱＋體質"),
+        ("add_zone.html", "📈", "加碼區", "拉回加碼點"),
+        ("premarket.html", "🌏", "盤前國際盤", "開盤偏多空"),
+        ("chips.html", "💰", "法人籌碼", "外資投信"),
+        ("rotation.html", "🔄", "輪動雷達", "類股輪動"),
+        ("cpo.html", "🔭", "CPO觀察", "矽光子股"),
     ]),
-    ("⚔️ 獵殺掃描", [
-        ("diamonds.html", "真鑽石篩選", "分真鑽石／鍍金／石頭，別買錯"),
-        ("turning.html", "轉折燈", "五關轉折：該上車還是下車"),
-        ("cold.html", "冷血獵殺", "抄超賣的強勢股"),
-        ("panic.html", "恐慌接刀", "崩盤時接被錯殺的好股"),
-        ("secondleg.html", "第二腳", "回測前低、站得住的接點"),
+    ("⚔️ 獵殺掃描", "#8957e5", [
+        ("diamonds.html", "💎", "真鑽石篩選", "分真假"),
+        ("turning.html", "🚦", "轉折燈", "上車下車"),
+        ("cold.html", "⚔️", "冷血獵殺", "抄超賣"),
+        ("panic.html", "🌋", "恐慌接刀", "崩盤接"),
+        ("secondleg.html", "🐺", "第二腳", "回測接點"),
     ]),
-    ("🔒 私人(需密碼 yushu178861)", [
-        ("support.html", "守線小幫手", "各檔防守線＋策略"),
-        ("levels.html", "關卡小工具", "你的成本＋操作關卡"),
+    ("🔒 私人", "#2ea043", [
+        ("support.html", "🛡️", "守線小幫手", "防守線"),
+        ("levels.html", "🎯", "關卡小工具", "成本關卡"),
     ]),
 ]
 
@@ -197,31 +197,35 @@ HOME_TPL = """<!DOCTYPE html>
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
 <title>看盤總表 首頁</title>
 <style>
-  body{margin:0;background:#0d1117;color:#e6edf3;font-family:'Noto Sans TC',sans-serif;padding:16px 14px 40px}
-  h1{font-size:24px;margin:4px 0 2px}
-  .upd{color:#8b949e;font-size:12px;margin-bottom:18px;line-height:1.6}
-  .hgroup{margin-bottom:20px}
-  .gtitle{font-size:15px;font-weight:700;color:#58a6ff;margin:0 0 8px;padding-left:2px}
-  .hitem{display:block;background:#161b22;border:1px solid #212835;border-radius:12px;padding:13px 15px;margin-bottom:9px;cursor:pointer;transition:.12s}
-  .hitem:hover{border-color:#1f6feb;background:#1a2333}
-  .hname{font-size:16px;font-weight:700}
-  .hdesc{font-size:12.5px;color:#8b949e;margin-top:3px;line-height:1.5}
+  body{margin:0;background:#0d1117;color:#e6edf3;font-family:'Noto Sans TC',sans-serif;padding:14px 12px 40px}
+  h1{font-size:22px;margin:2px 0 1px}
+  .upd{color:#8b949e;font-size:11.5px;margin-bottom:16px}
+  .gtitle{font-size:14px;font-weight:700;margin:14px 0 8px;padding-left:2px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .tile{position:relative;background:#141b24;border:1px solid #222b38;border-radius:14px;padding:12px 4px 10px;text-align:center;cursor:pointer;transition:transform .12s,border-color .12s,background .12s;overflow:hidden}
+  .tile:hover,.tile:active{border-color:var(--c);background:#19222f;transform:translateY(-2px)}
+  .tile::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--c);opacity:.85}
+  .emoji{font-size:25px;line-height:1}
+  .tname{font-size:13px;font-weight:700;margin-top:6px}
+  .tdesc{font-size:10.5px;color:#8b949e;margin-top:2px}
 </style></head><body>
   <h1>📊 看盤總表</h1>
-  <div class="upd">更新：__UPD__（台灣時間）<br>點下面工具進入，或用最上面那排頁籤切換</div>
+  <div class="upd">更新 __UPD__ · 點方塊進入，或用上面頁籤切換</div>
   __CARDS__
 </body></html>"""
 
 
 def home_page(upd):
-    cards = ""
-    for gtitle, items in HOME_GROUPS:
-        rows = ""
-        for url, nm, desc in items:
-            rows += (f'<div class="hitem" onclick="parent.goTab(\'{url}\')">'
-                     f'<div class="hname">{esc(nm)}</div><div class="hdesc">{esc(desc)}</div></div>')
-        cards += f'<div class="hgroup"><div class="gtitle">{esc(gtitle)}</div>{rows}</div>'
-    return lock_inject(HOME_TPL.replace("__UPD__", upd).replace("__CARDS__", cards))
+    blocks = ""
+    for gtitle, color, items in HOME_GROUPS:
+        tiles = ""
+        for url, emo, nm, desc in items:
+            tiles += (f'<div class="tile" style="--c:{color}" onclick="parent.goTab(\'{url}\')">'
+                      f'<div class="emoji">{emo}</div><div class="tname">{esc(nm)}</div>'
+                      f'<div class="tdesc">{esc(desc)}</div></div>')
+        blocks += (f'<div class="gtitle" style="color:{color}">{esc(gtitle)}</div>'
+                   f'<div class="grid">{tiles}</div>')
+    return lock_inject(HOME_TPL.replace("__UPD__", upd).replace("__CARDS__", blocks))
 
 
 def load_names():

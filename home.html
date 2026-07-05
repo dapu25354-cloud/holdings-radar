@@ -5,15 +5,17 @@
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
 <title>看盤總表 首頁</title>
 <style>
-  body{margin:0;background:#0d1117;color:#e6edf3;font-family:'Noto Sans TC',sans-serif;padding:16px 14px 40px}
-  h1{font-size:24px;margin:4px 0 2px}
-  .upd{color:#8b949e;font-size:12px;margin-bottom:18px;line-height:1.6}
-  .hgroup{margin-bottom:20px}
-  .gtitle{font-size:15px;font-weight:700;color:#58a6ff;margin:0 0 8px;padding-left:2px}
-  .hitem{display:block;background:#161b22;border:1px solid #212835;border-radius:12px;padding:13px 15px;margin-bottom:9px;cursor:pointer;transition:.12s}
-  .hitem:hover{border-color:#1f6feb;background:#1a2333}
-  .hname{font-size:16px;font-weight:700}
-  .hdesc{font-size:12.5px;color:#8b949e;margin-top:3px;line-height:1.5}
+  body{margin:0;background:#0d1117;color:#e6edf3;font-family:'Noto Sans TC',sans-serif;padding:14px 12px 40px}
+  h1{font-size:22px;margin:2px 0 1px}
+  .upd{color:#8b949e;font-size:11.5px;margin-bottom:16px}
+  .gtitle{font-size:14px;font-weight:700;margin:14px 0 8px;padding-left:2px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .tile{position:relative;background:#141b24;border:1px solid #222b38;border-radius:14px;padding:12px 4px 10px;text-align:center;cursor:pointer;transition:transform .12s,border-color .12s,background .12s;overflow:hidden}
+  .tile:hover,.tile:active{border-color:var(--c);background:#19222f;transform:translateY(-2px)}
+  .tile::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--c);opacity:.85}
+  .emoji{font-size:25px;line-height:1}
+  .tname{font-size:13px;font-weight:700;margin-top:6px}
+  .tdesc{font-size:10.5px;color:#8b949e;margin-top:2px}
 </style></head><body>
 <div id="pw-gate" style="position:fixed;inset:0;background:#0d1117;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Noto Sans TC',sans-serif;padding:20px">
   <div style="color:#e6edf3;font-size:20px;margin-bottom:16px">&#128274; 請輸入密碼</div>
@@ -52,6 +54,6 @@
 </script>
 
   <h1>📊 看盤總表</h1>
-  <div class="upd">更新：2026-07-05 11:00（台灣時間）<br>點下面工具進入，或用最上面那排頁籤切換</div>
-  <div class="hgroup"><div class="gtitle">📊 每日盯盤</div><div class="hitem" onclick="parent.goTab('radar.html')"><div class="hname">庫存股雷達</div><div class="hdesc">每檔短線強弱＋體質(真鑽石/石頭)</div></div><div class="hitem" onclick="parent.goTab('add_zone.html')"><div class="hname">🔒 加碼區</div><div class="hdesc">拉回到哪可以加碼(私人，需密碼)</div></div><div class="hitem" onclick="parent.goTab('premarket.html')"><div class="hname">盤前國際盤</div><div class="hdesc">昨夜美股/油價 → 台股開盤偏多或偏空</div></div><div class="hitem" onclick="parent.goTab('chips.html')"><div class="hname">法人籌碼</div><div class="hdesc">外資/投信買賣超</div></div><div class="hitem" onclick="parent.goTab('rotation.html')"><div class="hname">輪動雷達</div><div class="hdesc">類股分組強弱、看資金輪動</div></div><div class="hitem" onclick="parent.goTab('cpo.html')"><div class="hname">CPO觀察</div><div class="hdesc">矽光子觀察股(華星光/上詮/日月光)</div></div></div><div class="hgroup"><div class="gtitle">⚔️ 獵殺掃描</div><div class="hitem" onclick="parent.goTab('diamonds.html')"><div class="hname">真鑽石篩選</div><div class="hdesc">分真鑽石／鍍金／石頭，別買錯</div></div><div class="hitem" onclick="parent.goTab('turning.html')"><div class="hname">轉折燈</div><div class="hdesc">五關轉折：該上車還是下車</div></div><div class="hitem" onclick="parent.goTab('cold.html')"><div class="hname">冷血獵殺</div><div class="hdesc">抄超賣的強勢股</div></div><div class="hitem" onclick="parent.goTab('panic.html')"><div class="hname">恐慌接刀</div><div class="hdesc">崩盤時接被錯殺的好股</div></div><div class="hitem" onclick="parent.goTab('secondleg.html')"><div class="hname">第二腳</div><div class="hdesc">回測前低、站得住的接點</div></div></div><div class="hgroup"><div class="gtitle">🔒 私人(需密碼 yushu178861)</div><div class="hitem" onclick="parent.goTab('support.html')"><div class="hname">守線小幫手</div><div class="hdesc">各檔防守線＋策略</div></div><div class="hitem" onclick="parent.goTab('levels.html')"><div class="hname">關卡小工具</div><div class="hdesc">你的成本＋操作關卡</div></div></div>
+  <div class="upd">更新 2026-07-05 11:14 · 點方塊進入，或用上面頁籤切換</div>
+  <div class="gtitle" style="color:#1f6feb">📊 每日盯盤</div><div class="grid"><div class="tile" style="--c:#1f6feb" onclick="parent.goTab('radar.html')"><div class="emoji">📡</div><div class="tname">庫存股雷達</div><div class="tdesc">強弱＋體質</div></div><div class="tile" style="--c:#1f6feb" onclick="parent.goTab('add_zone.html')"><div class="emoji">📈</div><div class="tname">加碼區</div><div class="tdesc">拉回加碼點</div></div><div class="tile" style="--c:#1f6feb" onclick="parent.goTab('premarket.html')"><div class="emoji">🌏</div><div class="tname">盤前國際盤</div><div class="tdesc">開盤偏多空</div></div><div class="tile" style="--c:#1f6feb" onclick="parent.goTab('chips.html')"><div class="emoji">💰</div><div class="tname">法人籌碼</div><div class="tdesc">外資投信</div></div><div class="tile" style="--c:#1f6feb" onclick="parent.goTab('rotation.html')"><div class="emoji">🔄</div><div class="tname">輪動雷達</div><div class="tdesc">類股輪動</div></div><div class="tile" style="--c:#1f6feb" onclick="parent.goTab('cpo.html')"><div class="emoji">🔭</div><div class="tname">CPO觀察</div><div class="tdesc">矽光子股</div></div></div><div class="gtitle" style="color:#8957e5">⚔️ 獵殺掃描</div><div class="grid"><div class="tile" style="--c:#8957e5" onclick="parent.goTab('diamonds.html')"><div class="emoji">💎</div><div class="tname">真鑽石篩選</div><div class="tdesc">分真假</div></div><div class="tile" style="--c:#8957e5" onclick="parent.goTab('turning.html')"><div class="emoji">🚦</div><div class="tname">轉折燈</div><div class="tdesc">上車下車</div></div><div class="tile" style="--c:#8957e5" onclick="parent.goTab('cold.html')"><div class="emoji">⚔️</div><div class="tname">冷血獵殺</div><div class="tdesc">抄超賣</div></div><div class="tile" style="--c:#8957e5" onclick="parent.goTab('panic.html')"><div class="emoji">🌋</div><div class="tname">恐慌接刀</div><div class="tdesc">崩盤接</div></div><div class="tile" style="--c:#8957e5" onclick="parent.goTab('secondleg.html')"><div class="emoji">🐺</div><div class="tname">第二腳</div><div class="tdesc">回測接點</div></div></div><div class="gtitle" style="color:#2ea043">🔒 私人</div><div class="grid"><div class="tile" style="--c:#2ea043" onclick="parent.goTab('support.html')"><div class="emoji">🛡️</div><div class="tname">守線小幫手</div><div class="tdesc">防守線</div></div><div class="tile" style="--c:#2ea043" onclick="parent.goTab('levels.html')"><div class="emoji">🎯</div><div class="tname">關卡小工具</div><div class="tdesc">成本關卡</div></div></div>
 </body></html>
