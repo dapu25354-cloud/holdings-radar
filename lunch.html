@@ -14,9 +14,6 @@
   #eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:19px;user-select:none}
   #go{margin-top:14px;padding:11px 28px;font-size:15px;border:0;border-radius:10px;background:#8957e5;color:#fff;font-weight:700;cursor:pointer}
   #err{color:#f85149;font-size:13px;margin-top:12px;height:16px}
-  .hd{padding:14px 16px 4px;font-size:18px;font-weight:700}
-  .wrap{padding:0 10px 40px;overflow-x:auto}
-  pre{font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:1.55;white-space:pre;margin:0;color:#dbe1e8}
 </style></head><body>
 <div id="gate">
   <div class="t">&#128274; 午餐小抄（私人加密）</div>
@@ -28,32 +25,17 @@
   <button id="go">解開</button>
   <div id="err"></div>
 </div>
-<div id="content" style="display:none">
-  <div class="hd">午餐小抄</div>
-  <div class="wrap"><pre id="txt"></pre></div>
-</div>
 <script>
-  var SALT="hyE8+RbH+ZLiY5lgkoFykg==", IV="Qs1IN4ZWz8JtWWx0", CT="6dLkrY6ssHSJ8DtfeyuRXZu6keuKi3ho9XrsPMeBILVxVJ/AMAW8EzxuBM8U6yzdy52rmjcE45KLqs9JUFB/FsT1hihg8Vv8pHF6kIZUqCi4OF3GPPCSD5FgrECrXoR+GeabWFD3FQ3pYOVxJFgEKq0euu3KyXwbKF15+r/DafnjvSukFQrVVDN9LNgs1IEXwzMHsa1rtAP1V1yPollu5hLP1Cap17kwyj/Rh1FE+EO0/BCVys9Zk6bfqK7ujkDIveWdPRhPncygj9a1xH+JRwmnKIKgxv6U2NF+/CH/hai7tcf99QI58TXR+acxEgFr76VdehTgLaczYA/Dk01AWu3WO3JEN3udYrakvdl6fCgP0ARWL9oHNVhHQqLQ9CaOOtIdzzFebdn4rJQ8Gznn+xKS4jscaBnCjIpDjEfhCUY4y8tt4fe/nBNBdJu3zVPexY/xjSH4pYVmFNMO+x9yu6xCKX2rrzuP5H8Gbf/6i/ivU5lXkqUeXUasWrccufledQ707+bnHDegpKCBwntZk60wXLevAzpiNLb0asdyUweZYcHb7ciZeriwYmKc7wtWY2hAPcAUwdtZ7IzU8kDYkQbp2/DMFOsn1a6aHZtlZtlt/llm57B8X0HvwtpZhQukT6lKfiGQCNwsSEK4zp7vsDOtkg+wBdUFizx5OTBXriqt9qo7VaeZUdwEUD1CCr0FVcqG2lr1R8xSA5EbRr92T/COJPkCpD5HDUB07xjvZVpC+oeSoW+UgnQIUZvzrgixQ4gCaysTAvzBXa0osWcbpfYokYjNk4yptaCkIRyp7HApTrGJvx4a1YYhDi7DywLxzDF/n/d8yiTvPhggl2xh1iP1xCGR6x68IbgxStclc4eH0jneMtBb6IuZ4IJI7rET4JP0KZWBXhFSxcCCldUy0PL5baT8hWWXkP0FHjWc05tTseMpz53k6b7W7tOZTtKZcW4o7uecl/VgU3rl4FsQ9L4+jI1X2TCitasLlRlyLYsYb8k8aVW27vospHX7PSxXyg==", ITER=200000, NAMES=["是方", "銳澤", "智伸科", "均華", "緯創", "世界", "緯穎", "台積電", "中信金", "國票金", "大立光", "台達電", "元大金", "長榮航", "鑽全", "中鋼", "順達", "研華", "世禾", "汎銓", "台新金", "統一實", "寶成", "先進光"];
+  var SALT="t9kNinxNVUsXA+Q3d8JHAg==", IV="NIYhlqsTgNHsJ8ll", CT="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", ITER=200000;
   function b64d(s){var bin=atob(s);var a=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a;}
-  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-  window.filt=function(v){var ns=document.querySelectorAll('#txt span[data-stk]');for(var i=0;i<ns.length;i++){var o=ns[i].getAttribute('data-stk');ns[i].style.display=(o==='__hdr__'||v==='__ALL__'||(o===v&&v!=='__NONE__'))?'':'none';}};
   async function decrypt(){
     var pw=document.getElementById('pw').value;
     try{
       var km=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
       var key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64d(SALT),iterations:ITER,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['decrypt']);
       var pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64d(IV)},key,b64d(CT));
-      var plain=new TextDecoder().decode(pt).replace(/\r/g,'\n');
-      // 依股名把內容切成 span，供下拉篩選
-      var lines=plain.split('\n'), out=[], owner='__hdr__', cur=[];
-      function flush(){ if(cur.length){ out.push('<span data-stk="'+owner+'">'+esc(cur.join('\n')+'\n')+'</span>'); } }
-      for(var i=0;i<lines.length;i++){ var ln=lines[i], f=null; for(var k=0;k<NAMES.length;k++){ if(ln.indexOf(NAMES[k])>=0){f=NAMES[k];break;} } if(f){ flush(); cur=[ln]; owner=f; } else { cur.push(ln); } }
-      flush();
-      document.getElementById('txt').innerHTML=out.join('');
-      var present=[]; for(var k=0;k<NAMES.length;k++){ if(plain.indexOf(NAMES[k])>=0) present.push(NAMES[k]); }
-      try{ window.parent.encReady(present); }catch(e){}
-      document.getElementById('gate').style.display='none';
-      document.getElementById('content').style.display='block';
+      var full=new TextDecoder().decode(pt);
+      document.open();document.write(full);document.close();
     }catch(e){ document.getElementById('err').textContent='密碼錯誤或解密失敗，再試一次'; }
   }
   document.getElementById('go').onclick=decrypt;

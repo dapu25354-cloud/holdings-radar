@@ -285,7 +285,7 @@ def shell():
     # 只有這些頁籤才顯示下拉(有個股可篩)。盤前=國際盤沒個股→不顯示
     watch_tabs = ["radar.html", "diamonds.html", "turning.html", "chips.html", "rotation.html",
                   "cold.html", "panic.html", "secondleg.html"]
-    enc_tabs = ["lunch.html", "add_zone.html", "support.html", "levels.html"]   # 加密頁：解密後才由 encReady 填股單
+    enc_tabs = ["add_zone.html", "support.html", "levels.html"]   # 加密頁(有股票下拉)：解密後才由 encReady 填股單。午餐小抄是卡片、不列入
     filterable = json.dumps(watch_tabs + ["cpo.html"] + enc_tabs)
     # 各頁籤的「固定股單」：觀察24檔 / CPO那幾檔。下拉選項用這個，才會完整(不靠內容硬抓)
     watch = load_names()
