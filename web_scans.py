@@ -87,7 +87,7 @@ SHELL_TPL = """<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
-<title>描訊理財網</title>
+<title>描訊理財網 Signope</title>
 <style>
   html,body{margin:0;height:100%;background:#0d1117;font-family:'Noto Sans TC',sans-serif}
   body{display:flex;flex-direction:column}
@@ -189,10 +189,11 @@ HOME_TPL = """<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
-<title>描訊理財網</title>
+<title>描訊理財網 Signope</title>
 <style>
   body{margin:0;background:#0d1117;color:#e6edf3;font-family:'Noto Sans TC',sans-serif;padding:14px 12px 40px}
-  h1{font-size:22px;margin:2px 0 1px}
+  h1{font-size:22px;margin:2px 0 0}
+  .en{font-size:12px;color:#58a6ff;letter-spacing:3px;font-weight:700;margin:1px 0 14px;text-transform:uppercase}
   .upd{color:#8b949e;font-size:11.5px;margin-bottom:16px}
   .gtitle{font-size:13px;font-weight:700;margin:12px 0 6px;padding-left:2px}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:5px}
@@ -203,6 +204,7 @@ HOME_TPL = """<!DOCTYPE html>
   .tdesc{font-size:8.5px;color:#8b949e;margin-top:0;line-height:1.3}
 </style></head><body>
   <h1>📡 描訊理財網</h1>
+  <div class="en">Signope</div>
   <div class="upd">更新 __UPD__ · 點方塊進入工具，工具頁左上角「🏠首頁」可回來</div>
   __CARDS__
 </body></html>"""
