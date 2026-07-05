@@ -28,6 +28,10 @@ TW = timezone(timedelta(hours=8))
 from page_lock import inject as lock_inject
 import diamond_scanner
 import turning_point
+import premarket
+import institutional_chips
+import rotation_radar
+import cpo_watch
 
 
 def now_str():
@@ -91,7 +95,21 @@ TABS = [
     ("加碼區", "add_zone.html"),
     ("真鑽石篩選", "diamonds.html"),
     ("轉折燈", "turning.html"),
+    ("盤前國際盤", "premarket.html"),
+    ("法人籌碼", "chips.html"),
+    ("輪動雷達", "rotation.html"),
+    ("CPO觀察", "cpo.html"),
     ("🔒關卡", "levels.html"),   # 私人加密頁(內容是密文，需專屬密碼解)
+]
+
+# 文字型工具：(頁面標題, 輸出檔, 要跑的函式)。加新工具在這裡加一行即可。
+TEXT_TOOLS = [
+    ("💎 真鑽石篩選", "diamonds.html", lambda: diamond_scanner.run()),
+    ("🚦 轉折燈", "turning.html", lambda: turning_point.main()),
+    ("🌏 盤前國際盤", "premarket.html", lambda: premarket.run()),
+    ("💰 法人籌碼", "chips.html", lambda: institutional_chips.run()),
+    ("📡 庫存輪動雷達", "rotation.html", lambda: rotation_radar.run()),
+    ("🔭 CPO矽光子觀察", "cpo.html", lambda: cpo_watch.run()),
 ]
 
 
@@ -112,18 +130,14 @@ def shell():
 
 def main():
     upd = now_str()
-    print("產生 真鑽石篩選 頁…")
-    diamonds_txt = capture(diamond_scanner.run)
-    print("產生 轉折燈 頁…")
-    turning_txt = capture(turning_point.main)
-
-    with open(os.path.join(HERE, "diamonds.html"), "w", encoding="utf-8") as f:
-        f.write(text_page("💎 真鑽石篩選", diamonds_txt, upd))
-    with open(os.path.join(HERE, "turning.html"), "w", encoding="utf-8") as f:
-        f.write(text_page("🚦 轉折燈", turning_txt, upd))
+    for title, fname, fn in TEXT_TOOLS:
+        print(f"產生 {title} 頁…")
+        txt = capture(fn)
+        with open(os.path.join(HERE, fname), "w", encoding="utf-8") as f:
+            f.write(text_page(title, txt, upd))
     with open(os.path.join(HERE, "index.html"), "w", encoding="utf-8") as f:
         f.write(shell())
-    print("已產生 diamonds.html / turning.html / index.html(頁籤外框)")
+    print("已產生所有工具頁 + index.html(頁籤外框)")
 
 
 if __name__ == "__main__":

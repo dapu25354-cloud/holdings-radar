@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-TW"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<title>🌏 盤前國際盤</title>
+<style>
+  body{margin:0;background:#0d1117;color:#e6edf3;font-family:'Noto Sans TC',sans-serif}
+  .hd{padding:14px 16px 4px;font-size:18px;font-weight:700}
+  .upd{padding:0 16px 10px;color:#8b949e;font-size:12px}
+  .wrap{padding:0 10px 40px;overflow-x:auto}
+  pre{font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:1.55;white-space:pre;margin:0;color:#dbe1e8}
+</style></head><body>
+<div id="pw-gate" style="position:fixed;inset:0;background:#0d1117;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Noto Sans TC',sans-serif;padding:20px">
+  <div style="color:#e6edf3;font-size:20px;margin-bottom:16px">&#128274; 請輸入密碼</div>
+  <div style="position:relative;width:240px">
+    <input id="pw-input" type="password" placeholder="密碼" autocomplete="off" style="padding:12px 44px 12px 16px;font-size:16px;border-radius:10px;border:1px solid #30363d;background:#161b22;color:#e6edf3;width:100%;box-sizing:border-box;text-align:center;outline:none">
+    <span id="pw-eye" title="顯示/隱藏密碼" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:19px;user-select:none">&#128065;</span>
+  </div>
+  <button id="pw-btn" style="margin-top:14px;padding:11px 28px;font-size:15px;border:0;border-radius:10px;background:#2ea043;color:#fff;font-weight:700;cursor:pointer">進入</button>
+  <div id="pw-err" style="color:#f85149;font-size:13px;margin-top:12px;height:16px"></div>
+</div>
+<script>
+(function(){
+  var HASH="1571d02308bd8adf980dc679f575a87cb0d1e2dbaab4cd32b6f6d37085db92bd";
+  var gate=document.getElementById('pw-gate');
+  function unlock(){ gate.style.display='none'; document.body.style.overflow=''; }
+  if(localStorage.getItem('radar_ok')==='1'){ unlock(); }
+  else { document.body.style.overflow='hidden'; }
+  async function check(){
+    var v=document.getElementById('pw-input').value;
+    try{
+      var buf=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(v));
+      var hex=Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+      if(hex===HASH){ localStorage.setItem('radar_ok','1'); unlock(); }
+      else { document.getElementById('pw-err').textContent='密碼錯誤，再試一次'; }
+    }catch(e){ document.getElementById('pw-err').textContent='此瀏覽器不支援，請用 Chrome/Safari'; }
+  }
+  document.getElementById('pw-btn').onclick=check;
+  document.getElementById('pw-input').addEventListener('keydown', function(e){ if(e.key==='Enter') check(); });
+  var inp=document.getElementById('pw-input'), eye=document.getElementById('pw-eye');
+  eye.onclick=function(){
+    if(inp.type==='password'){ inp.type='text'; eye.innerHTML='&#128584;'; }
+    else { inp.type='password'; eye.innerHTML='&#128065;'; }
+    inp.focus();
+  };
+})();
+</script>
+
+  <div class="hd">🌏 盤前國際盤</div>
+  <div class="upd">最後更新：2026-07-05 08:12（台灣時間）</div>
+  <div class="wrap"><pre>=== 🌏 盤前國際盤 → 台股影響 ===
+
+【最關鍵：半導體 / 台積】
+  台積電ADR      434.16  ▼-2.27%  
+  費城半導體     12626.22  ▼-5.44%  
+
+【美股大盤】
+  輝達          194.83  ▼-1.39%  
+  那斯達克      25832.67  ▼-0.80%  
+  標普500      7483.24  ▲+0.00%  
+  道瓊        52900.07  ▲+1.14%  
+
+【亞股 (日韓)】
+  日經225     69744.07  ▲+1.47%  
+  韓國KOSPI    8088.34  ▲+5.76%  
+
+【原物料】
+  西德州原油        68.78  ▲+0.13%  
+  黃金         4187.30  ▲+1.81%  (避險升溫)
+  銅             6.22  ▲+1.79%  (景氣需求)
+
+【加密 / 貨幣】
+  比特幣       62995.32  ▲+0.72%  (中性)
+  美元指數        100.86  ▼-0.00%  
+  美元日圓        161.34  ▼-0.74%  
+  美元台幣         31.92  ▲+0.09%  
+  恐慌VIX        16.15  ▼-2.65%  
+
+============================================
+🔻 偏空(加權-1.87%) — 開低機率大,保守。
+• 台積電ADR -2.27% → 台積電開盤方向偏空、可能開低(幅度受溢價影響)。
+• 亞股(日韓)同步走強 → 區域氣氛偏多,加分。
+</pre></div>
+</body></html>
