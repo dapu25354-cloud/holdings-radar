@@ -1591,6 +1591,12 @@ def build_dashboard():
     <script>
         let currentFilter = 'all';
 
+        function filt(v){{  // 給外框頁籤下拉呼叫：v='__ALL__' 或某股名
+            document.querySelectorAll('.card').forEach(function(c){{
+                c.style.display=(v==='__ALL__'||c.getAttribute('data-name')===v)?'':'none';
+            }});
+        }}
+
         function setFilter(filter, btnElement) {{
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             btnElement.classList.add('active');

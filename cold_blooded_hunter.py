@@ -6,37 +6,14 @@ import ta
 import json
 import time
 from datetime import datetime
+from diamond_filter import analyze_diamond  # 同層
 
 # 強制 UTF-8 輸出
-try:
+if sys.stdout.encoding != 'utf-8':
     sys.stdout.reconfigure(encoding='utf-8')
-except Exception:
-    pass
 
-# --- 環境變數與路徑設定 (Cloud 支援) ---
-TELEGRAM_TOKEN = os.getenv("TG_TOKEN")
-TELEGRAM_CHAT_ID = os.getenv("TG_CHAT_ID")
-
-# 優先讀取專案內的 watch_list.json (從 python/ 移入)
-WATCHLIST_FILE = os.path.join(os.path.dirname(__file__), "watch_list.json")
-# 如果不存在，嘗試讀取上層目錄 (本機路徑)
-if not os.path.exists(WATCHLIST_FILE):
-    WATCHLIST_FILE = os.path.join(os.path.dirname(__file__), "..", "watch_list.json")
-
-def load_config():
-    """本機開發時讀取 config.json；Cloud 環境優先使用環境變數"""
-    global TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
-    if TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
-        return {"tg_token": TELEGRAM_TOKEN, "tg_chat_id": TELEGRAM_CHAT_ID}
-    
-    config_path = os.path.join(os.path.dirname(__file__), "..", "config.json")
-    if os.path.exists(config_path):
-        with open(config_path, 'r', encoding='utf-8') as f:
-            config = json.load(f)
-            TELEGRAM_TOKEN = config.get("tg_token") or config.get("token")
-            TELEGRAM_CHAT_ID = config.get("tg_chat_id") or config.get("chat_id")
-            return config
-    return {}
+# 全系統共用同一張清單(放在 TODOLIST，線上雷達也讀這張，永遠不會不一致)
+WATCHLIST_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "watch_list.json")
 
 def load_watchlist():
     if os.path.exists(WATCHLIST_FILE):
@@ -44,95 +21,103 @@ def load_watchlist():
             return json.load(f)
     return []
 
-def send_telegram_msg(message):
-    # Telegram notifications are completely disabled per user request to avoid notification floods.
-    print(f"[Telegram Disabled] Message not sent: {message.replace(chr(10), ' ')}")
-    return
-
-def generate_signals(df):
+def analyze(symbol, name):
     """
-    冷血獵殺核心邏輯
+    冷血獵殺 = 抄超賣(RSI<30 或觸布林下軌)且今天止跌不破昨低。
+    但抄超賣容易撿到弱股，所以先過鑽石閘門：長線趨勢向上才值得抄。
     """
-    # 處理 yfinance 可能返回的 MultiIndex
-    if isinstance(df.columns, pd.MultiIndex):
-        df.columns = df.columns.get_level_values(0)
-    
-    close = df['Close'].squeeze()
-    high = df['High'].squeeze()
-    low = df['Low'].squeeze()
+    try:
+        ticker = yf.Ticker(symbol)
+        df = ticker.history(period="1y")
+        if df.empty or len(df) < 70:
+            return None
 
-    # 1. 計算 RSI
-    df['rsi'] = ta.momentum.rsi(close=close, window=14)
-    
-    # 2. 計算布林通道
-    indicator_bb = ta.volatility.BollingerBands(close=close, window=20, window_dev=2)
-    df['bb_lband'] = indicator_bb.bollinger_lband()
-    
-    # 3. 建立訊號欄位
-    df['rsi_oversold'] = df['rsi'] < 35  # Cloud 版稍微調高靈敏度 (原為 30)
-    df['touch_bb_lower'] = low <= df['bb_lband']
-    df['stop_lower_low'] = close >= close.shift(1)
-    
-    # 買進訊號 (停止破低 AND (RSI超賣 OR 觸碰下軌))
-    df['buy_signal'] = (df['stop_lower_low']) & (df['rsi_oversold'] | df['touch_bb_lower'])
-    
-    return df
+        close = df['Close']
+        low = df['Low']
+        df['rsi'] = ta.momentum.rsi(close=close, window=14)
+        bb = ta.volatility.BollingerBands(close=close, window=20, window_dev=2)
+        df['bb_lband'] = bb.bollinger_lband()
+        ma60 = close.rolling(60).mean()
+        ma120 = close.rolling(120).mean()
+
+        last = df.iloc[-1]
+        price = float(last['Close'])
+        rsi = float(last['rsi'])
+        bb_l = float(last['bb_lband'])
+        season_ma = float(ma60.iloc[-1])
+        season_ma_20ago = float(ma60.iloc[-21])
+        half_ma = float(ma120.iloc[-1]) if not pd.isna(ma120.iloc[-1]) else season_ma
+
+        # 真鑽石閘門(基本面+年線)，不再只看季線
+        season_rising = season_ma > season_ma_20ago
+        dia = analyze_diamond(symbol, name)
+        is_diamond = dia['is_true']
+
+        # 冷血訊號
+        stop_lower_low = float(last['Close']) >= float(df['Close'].iloc[-2])
+        rsi_oversold = rsi < 30
+        touch_bb = float(last['Low']) <= bb_l
+        signal = stop_lower_low and (rsi_oversold or touch_bb)
+
+        worth = is_diamond and signal
+        pitch = ""
+        if worth:
+            trig = "RSI跌破30超賣" if rsi_oversold else "殺到布林下軌"
+            pitch = (f"{name}{trig}(RSI{rsi:.0f})、今天止跌沒再破低，而且是真鑽石"
+                     f"({dia['metrics']['roe'] and str(round(dia['metrics']['roe']*100))+'% ROE' or '體質實在'})"
+                     f"→強勢股被錯殺、跌到便宜區，值得撿。")
+
+        detail = (f"[{dia['grade']}] 收{price:.1f} | RSI{rsi:.0f}"
+                  f"{'(超賣)' if rsi_oversold else ''} | 布林下軌{bb_l:.1f}"
+                  f"{'(觸及)' if touch_bb else ''} | 季線{season_ma:.1f}{'↑' if season_rising else '↓'}")
+
+        return {"symbol": symbol, "name": name, "worth": worth, "pitch": pitch,
+                "detail": detail, "diamond": is_diamond, "signal": signal, "grade": dia['grade']}
+    except Exception as e:
+        print(f"❌ {symbol} 出錯: {e}")
+        return None
 
 def run_full_scan():
     watchlist = load_watchlist()
     if not watchlist:
-        print(f"錯誤: 找不到觀察名單 {WATCHLIST_FILE}")
+        print("錯誤: 觀察名單為空。")
         return
 
-    print(f"--- ⚔️ 雲端啟動【冷血獵殺】全方位掃描 ---")
+    print("--- ⚔️ 冷血獵殺(抄超賣強勢股)掃描 ---")
     print(f"時間: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("-" * 60)
 
-    triggered_stocks = []
-
+    results = []
     for item in watchlist:
-        symbol = item['symbol']
-        name = item['name']
-        print(f"分析中: {symbol} ({name})...")
-        
-        try:
-            ticker = yf.Ticker(symbol)
-            df = ticker.history(period="6mo")
-            if df.empty or len(df) < 20:
-                continue
+        print(f"掃描中: {item['symbol']} {item['name']}...", end="\r")
+        r = analyze(item['symbol'], item['name'])
+        if r:
+            results.append(r)
+        time.sleep(0.3)
 
-            df = generate_signals(df)
-            last_row = df.iloc[-1]
-            
-            if last_row['buy_signal']:
-                res = {
-                    "symbol": symbol,
-                    "name": name,
-                    "price": float(last_row['Close']),
-                    "rsi": float(last_row['rsi']),
-                    "bb_l": float(last_row['bb_lband'])
-                }
-                triggered_stocks.append(res)
-                print(f"✅ {symbol} {name} 訊號觸發！")
-            
-            time.sleep(0.5)
-        except Exception as e:
-            print(f"❌ {symbol} 出錯: {e}")
+    worth_list = [r for r in results if r['worth']]
 
-    if triggered_stocks:
-        summary_msg = "🎯 【冷血獵殺 - 雲端掃描報告】\n"
-        summary_msg += f"⏰ 時間: {datetime.now().strftime('%H:%M:%S')}\n"
-        for s in triggered_stocks:
-            summary_msg += f"------------------\n"
-            summary_msg += f"📈 {s['symbol']} ({s['name']})\n"
-            summary_msg += f"💰 現價: {s['price']:.2f}\n"
-            summary_msg += f"📊 RSI: {s['rsi']:.1f}\n"
-            summary_msg += f"📉 布林下軌: {s['bb_l']:.1f}\n"
-        
-        print(summary_msg)
-        send_telegram_msg(summary_msg)
+    print("\n" + "=" * 60)
+    if worth_list:
+        print("🎯 今天值得撿的(強勢股被錯殺到超賣):")
+        for r in worth_list:
+            print(f"\n  ✅ {r['name']} ({r['symbol']})")
+            print(f"     {r['pitch']}")
     else:
-        print("【⌛ 掃描完成】未發現冷血獵殺訊號。")
+        # 有訊號但都是弱股，也講清楚，別讓她以為漏看
+        weak_hits = [r for r in results if r['signal'] and not r['diamond']]
+        print("🟢 今天沒有值得撿的冷血訊號。")
+        if weak_hits:
+            names = "、".join(f"{r['name']}({r['grade']})" for r in weak_hits)
+            print(f"   ({names} 雖然超賣，但不是真鑽石，錯殺也不撿)")
+        else:
+            print("   名單裡沒有真鑽石跌進超賣區，沒事做。")
+        print("   → 別為了做而做。")
+    print("=" * 60)
 
 if __name__ == "__main__":
     run_full_scan()
+    try:
+        input("\n掃描結束，按 Enter 鍵關閉視窗...")
+    except EOFError:
+        pass
