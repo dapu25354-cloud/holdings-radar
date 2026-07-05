@@ -92,6 +92,7 @@ SHELL_TPL = """<!DOCTYPE html>
   .topbar{flex:0 0 auto;background:#0d1117;border-bottom:1px solid #212835;padding:8px 8px 0}
   .tabbar{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch}
   .tab{flex:0 0 auto;padding:10px 16px;font-size:15px;font-weight:700;color:#8b949e;background:#161b22;border:1px solid #212835;border-bottom:none;border-radius:10px 10px 0 0;cursor:pointer;white-space:nowrap}
+  .tab:hover{text-decoration:underline;color:#e6edf3}
   .tab.active{color:#fff;background:#1f6feb;border-color:#1f6feb}
   .stkrow{display:flex;align-items:center;gap:8px;padding:8px 2px 6px}
   .stkrow label{color:#8b949e;font-size:13px;white-space:nowrap}
@@ -193,8 +194,8 @@ def shell():
     ver = datetime.now(TW).strftime('%Y%m%d%H%M')  # 版本記號=防快取，每次更新換一個號
     import json
     # 只有這些頁籤才顯示下拉(有個股可篩)。盤前=國際盤沒個股、雷達/加碼區/關卡尚未接下拉→不顯示
-    filterable = json.dumps(["diamonds.html", "turning.html", "chips.html", "rotation.html", "cpo.html",
-                             "cold.html", "panic.html", "secondleg.html"])
+    filterable = json.dumps(["radar.html", "diamonds.html", "turning.html", "chips.html", "rotation.html",
+                             "cpo.html", "cold.html", "panic.html", "secondleg.html"])
     return (SHELL_TPL.replace("__TABS__", btns)
                      .replace("__STKOPTS__", opts)
                      .replace("__VER__", ver)
