@@ -52,7 +52,8 @@ def capture(fn):
             fn()
         except Exception as e:
             print(f"(這頁產生時出錯：{e})")
-    return buf.getvalue()
+    # \r(進度列 end='\r') 正規化成 \n，否則多檔黏成一行、切段只認得第一檔
+    return buf.getvalue().replace('\r', '\n')
 
 
 PAGE_TPL = """<!DOCTYPE html>
@@ -106,7 +107,7 @@ SHELL_TPL = """<!DOCTYPE html>
   </div>
   <iframe id="fr" src="radar.html?v=__VER__" onload="af()"></iframe>
 <script>
-  var VER="__VER__", mem={}, cur="radar.html", FILTER=__FILTER__;   // mem:每頁記住選的股; FILTER:哪些頁籤才有下拉
+  var VER="__VER__", mem={}, cur="radar.html", FILTER=__FILTER__, TABSTK=__TABSTK__;   // TABSTK:各頁籤固定股單
   // 把下拉▼移到「當前頁籤」右邊；非篩選頁(盤前等)則隱藏
   function place(){
     var sel=document.getElementById('stk'), act=document.querySelector('.tab.active');
@@ -114,19 +115,8 @@ SHELL_TPL = """<!DOCTYPE html>
     else { sel.style.display='none'; }
   }
   function flt(v){try{var w=document.getElementById('fr').contentWindow;if(w&&w.filt)w.filt(v);}catch(e){}}
-  // 抓「當前頁」實際有的股票(文字頁看 data-stk、雷達卡片看 data-name)
-  function tabStocks(){
-    var set={}, out=[];
-    try{
-      var doc=document.getElementById('fr').contentWindow.document;
-      var els=doc.querySelectorAll('[data-stk]');
-      for(var i=0;i<els.length;i++){var s=els[i].getAttribute('data-stk');if(s&&s!=='__hdr__'&&!set[s]){set[s]=1;out.push(s);}}
-      if(out.length===0){var cs=doc.querySelectorAll('[data-name]');for(var j=0;j<cs.length;j++){var n=cs[j].getAttribute('data-name');if(n&&!set[n]){set[n]=1;out.push(n);}}}
-    }catch(e){}
-    return out;
-  }
   function fillSel(){
-    var stocks=tabStocks(), sel=document.getElementById('stk');
+    var stocks=TABSTK[cur]||[], sel=document.getElementById('stk');
     var html='<option value="__NONE__">選股票…</option><option value="__ALL__">全部</option>';
     for(var i=0;i<stocks.length;i++){html+='<option value="'+stocks[i]+'">'+stocks[i]+'</option>';}
     sel.innerHTML=html;
@@ -218,12 +208,22 @@ def shell():
         btns += f'<button class="{cls}" onclick="show(this,\'{url}\')">{name}</button>'
     ver = datetime.now(TW).strftime('%Y%m%d%H%M')  # 版本記號=防快取，每次更新換一個號
     import json
-    # 只有這些頁籤才顯示下拉(有個股可篩)。盤前=國際盤沒個股→不顯示。下拉選項在前端依當前頁自動抓
-    filterable = json.dumps(["radar.html", "diamonds.html", "turning.html", "chips.html", "rotation.html",
-                             "cpo.html", "cold.html", "panic.html", "secondleg.html"])
+    # 只有這些頁籤才顯示下拉(有個股可篩)。盤前=國際盤沒個股→不顯示
+    watch_tabs = ["radar.html", "diamonds.html", "turning.html", "chips.html", "rotation.html",
+                  "cold.html", "panic.html", "secondleg.html"]
+    filterable = json.dumps(watch_tabs + ["cpo.html"])
+    # 各頁籤的「固定股單」：觀察24檔 / CPO那幾檔。下拉選項用這個，才會完整(不靠內容硬抓)
+    watch = load_names()
+    try:
+        cpo = [nm for (_c, nm, _r) in cpo_watch.WATCH]
+    except Exception:
+        cpo = []
+    tabstk = {u: watch for u in watch_tabs}
+    tabstk["cpo.html"] = cpo
     return (SHELL_TPL.replace("__TABS__", btns)
                      .replace("__VER__", ver)
-                     .replace("__FILTER__", filterable))
+                     .replace("__FILTER__", filterable)
+                     .replace("__TABSTK__", json.dumps(tabstk, ensure_ascii=False)))
 
 
 def main():
