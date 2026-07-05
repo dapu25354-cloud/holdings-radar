@@ -32,6 +32,9 @@ import premarket
 import institutional_chips
 import rotation_radar
 import cpo_watch
+import cold_blooded_hunter
+import panic_bottom_hunter
+import second_leg_hunter
 
 
 def now_str():
@@ -120,7 +123,11 @@ TABS = [
     ("法人籌碼", "chips.html"),
     ("輪動雷達", "rotation.html"),
     ("CPO觀察", "cpo.html"),
-    ("🔒關卡", "levels.html"),   # 私人加密頁(內容是密文，需專屬密碼解)
+    ("冷血獵殺", "cold.html"),
+    ("恐慌接刀", "panic.html"),
+    ("第二腳", "secondleg.html"),
+    ("🛡️守線", "support.html"),   # 私人加密頁(防守線+策略，密文)
+    ("🔒關卡", "levels.html"),     # 私人加密頁(成本/持股，密文)
 ]
 
 # 文字型工具：(頁面標題, 輸出檔, 要跑的函式)。加新工具在這裡加一行即可。
@@ -131,6 +138,9 @@ TEXT_TOOLS = [
     ("💰 法人籌碼", "chips.html", lambda: institutional_chips.run()),
     ("📡 庫存輪動雷達", "rotation.html", lambda: rotation_radar.run()),
     ("🔭 CPO矽光子觀察", "cpo.html", lambda: cpo_watch.run()),
+    ("⚔️ 冷血獵殺", "cold.html", lambda: cold_blooded_hunter.run_full_scan()),
+    ("🌋 恐慌接刀", "panic.html", lambda: panic_bottom_hunter.run_panic_scan()),
+    ("🐺 第二腳獵殺", "secondleg.html", lambda: second_leg_hunter.run_hunter()),
 ]
 
 
@@ -183,7 +193,8 @@ def shell():
     ver = datetime.now(TW).strftime('%Y%m%d%H%M')  # 版本記號=防快取，每次更新換一個號
     import json
     # 只有這些頁籤才顯示下拉(有個股可篩)。盤前=國際盤沒個股、雷達/加碼區/關卡尚未接下拉→不顯示
-    filterable = json.dumps(["diamonds.html", "turning.html", "chips.html", "rotation.html", "cpo.html"])
+    filterable = json.dumps(["diamonds.html", "turning.html", "chips.html", "rotation.html", "cpo.html",
+                             "cold.html", "panic.html", "secondleg.html"])
     return (SHELL_TPL.replace("__TABS__", btns)
                      .replace("__STKOPTS__", opts)
                      .replace("__VER__", ver)

@@ -1,58 +1,9 @@
-# -*- coding: utf-8 -*-
-"""
-私人加密網頁產生器 —— 只在本機跑(會讀含成本/防守策略的 xxx_levels.py / support_level.py)。
-把「關卡小工具」「守線小幫手」的輸出，用密碼(環境變數 LEVELS_PW)加密成亂碼寫進 HTML。
-上傳公開倉庫的只有亂碼；原始檔與密碼都不上傳。手機端輸入同一組密碼在瀏覽器解密還原。
-
-用法(本機)：  LEVELS_PW=你的密碼  python build_levels_page.py
-※ 絕不要把 xxx_levels.py / support_level.py / 密碼 提交到公開倉庫(已用 .gitignore 擋)。
-"""
-import io
-import os
-import sys
-import base64
-import contextlib
-
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-
-try:
-    sys.stdout.reconfigure(encoding='utf-8')
-except Exception:
-    pass
-
-HERE = os.path.dirname(os.path.abspath(__file__))
-ITER = 200000
-
-import levels_watch
-import support_level
-
-# (顯示名, 輸出檔, 要跑的函式)。這些都是私人內容、都會加密。
-PAGES = [
-    ("關卡小工具", "levels.html", lambda: levels_watch.run()),
-    ("守線小幫手", "support.html", lambda: support_level.main()),
-]
-
-
-def _b64(b):
-    return base64.b64encode(b).decode()
-
-
-def encrypt(plaintext, password):
-    salt = os.urandom(16)
-    iv = os.urandom(12)
-    key = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=ITER).derive(password.encode())
-    ct = AESGCM(key).encrypt(iv, plaintext.encode('utf-8'), None)  # ct = ciphertext || 16-byte tag
-    return _b64(salt), _b64(iv), _b64(ct)
-
-
-HTML = """<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
-<title>__NAME__（加密）</title>
+<title>守線小幫手（加密）</title>
 <style>
   body{margin:0;background:#0d1117;color:#e6edf3;font-family:'Noto Sans TC',sans-serif}
   #gate{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
@@ -68,7 +19,7 @@ HTML = """<!DOCTYPE html>
   pre{font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:1.55;white-space:pre;margin:0;color:#dbe1e8}
 </style></head><body>
 <div id="gate">
-  <div class="t">&#128274; __NAME__（私人加密）</div>
+  <div class="t">&#128274; 守線小幫手（私人加密）</div>
   <div class="s">輸入專屬密碼才會解開私人內容</div>
   <div class="box">
     <input id="pw" type="password" placeholder="專屬密碼" autocomplete="off">
@@ -78,11 +29,11 @@ HTML = """<!DOCTYPE html>
   <div id="err"></div>
 </div>
 <div id="content" style="display:none">
-  <div class="hd">__NAME__</div>
+  <div class="hd">守線小幫手</div>
   <div class="wrap"><pre id="txt"></pre></div>
 </div>
 <script>
-  var SALT="__SALT__", IV="__IV__", CT="__CT__", ITER=__ITER__;
+  var SALT="le6wDrw+JTbO6VPNZQ/7tg==", IV="6s45uJeOeleDcNm2", CT="mw/xjG3EDSlsriS8NNTyJkqvxxFvnDgqYrfrn2tYxvIn0mP+yUt/yqCKLec+mRtyqoS18TxA+Qc09hkhtFE91dXJHVOo4s7e387atxs7Od9qdOv6dbYYh9PpGQcfrDvCugK2BgnfYvn7mIKuXxA4CeTDdmg3ADj8fygOL08Heq740YirlY7GYo5flU5V31pLUvAEZ3b97SmGz/ZCYBPE8o+lDR+G3WwqIBAS7WK9D9dJqiwYdEGPMzwRtrkxl6loT38lE9d3sY57f3HvnKU3RSOSzZJtTGr+N8UkNjy6kPE+st1pAB7syQBNDWrItXOIpRSMfIG/j4SFFpechf35QRuQLa400JNgi617NaQCAOaFH3wcsKHwImhaYjZrsDRXjy6NOmsuBWbb808+emeBe0BdEhAZpEhCKDaI7T0YSkI4vHuwbWxnbFhZA/SW36UrFHK64SrBW/EGnSCodwD+Z+UakXCdkifxZ/PhUMTrZmFyiliC91etKBXs+qYxFMcqfkmX9FnIcHxl+Bw4dz+aCFb6UsRRPu6aNUJHc3RZdTZ7zrmQwgSdcUS1OWKPG1jWsLEHUmtv3+YfxNZ977rDqrwbsAupvoDp/MglA1kRi78iQ6fGPBIHnrJqBrie7Q+qDYLVAgbNWe+ldjofS2pEOAzXcTBX7VDNA4jYa9zeGGwXHjNIpBIzanY0WVlXG2pzzEguYKwH4szKILinBhhsAxCKuZsywDAdPKPYfEe+NkZ0VIvq28Vyhc6bi6lmQQp9O6KfZ3tC/GFqL0neKLr42JJFD12HW3N1jbDKucniJtdLesficLaaH/HxAvAO5GGJXkfKUQ7ZmLxQLRJGvkgX2ASd9m7b9FQ9TrMbQLyCHlunrBbXdQ3dp51nIwKe6reS9fKZSf/Rd1ERPJL6byZQ9aw9cXIfJ2T+0EL8VOalKrOrpEq/YjfglZt5j+SL3QS4IVSUWE/HHnWjrZyUOKW0U7+VnQuveFyIKOtDgv9UygZ+2/UWe96QG6Kxyb2WnldywTa9IVek/MwQyLIUiArTu6nbri7NV0qRLkaFthSqyGAX9QzJwH2GFzsLrsvieTzdwU6M2pqJ3vmbszXaMTLKe/jGaxywrb7dfX48qBZSzkdpSnQ4AgSYB8ulQ3wfS7de/YGZwGPO6roXOewOiQFmdaLSFhbt1le3wP/BQ+/3qRwH0oNcJye1eRPq3eXDMI/iCYDtWS80VID1oDq+Kiya+U23AxG6pqLlc1UUpme1oE4ntST0qUXdvx9FAacVf8rJ5wVUWm8lDssfRFblAzQVlMmWdVSrlBEvkDDX9hDx+U6XhbOFJ25naoO7Z2e1cb8iSk/qeXCD4betqI2R5C1cSy9IaNAhPZBR5AKB3Xb59Cp6mCkby2BukB/otd3Ht703i42yF2Radh3vCnZ0XRnQTn0K6Yclm12pYogbd9uwzX66Z6IqEsAsstBcunwz8Ebs3QQPL91mz+eamMTcPrrK0ljBTbPDdfVvgIFXHEKkyEimwASbTlBj8dZpPDaCMfslcVxYtrjnHDU8txvqKGUFIn+21p+f6H70ZEBd4VbEnw5dt5w1r0GtFOqeESQGSnwgnmRyC4kkwHvi13DuN5L41EzJGFBRduJc8+Glyju5Z+oPVHhaF2+g+kvcu0NtScdQIfRPpx4UmnoWkmNTNVgEY+w79rJZ1pDoSCNJY5UblUOFZPnyUNpxhnn2i2+zjkuD", ITER=200000;
   function b64d(s){var bin=atob(s);var a=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a;}
   async function decrypt(){
     var pw=document.getElementById('pw').value;
@@ -100,33 +51,4 @@ HTML = """<!DOCTYPE html>
   var inp=document.getElementById('pw'),eye=document.getElementById('eye');
   eye.onclick=function(){ if(inp.type==='password'){inp.type='text';eye.innerHTML='&#128584;';}else{inp.type='password';eye.innerHTML='&#128065;';} inp.focus(); };
 </script>
-</body></html>"""
-
-
-def build_page(name, run_fn, outfile, pw):
-    buf = io.StringIO()
-    with contextlib.redirect_stdout(buf):
-        try:
-            run_fn()
-        except Exception as e:
-            print(f"(產生時出錯：{e})")
-    text = buf.getvalue()
-    salt, iv, ct = encrypt(text, pw)
-    html = (HTML.replace("__NAME__", name).replace("__SALT__", salt)
-                .replace("__IV__", iv).replace("__CT__", ct).replace("__ITER__", str(ITER)))
-    with open(os.path.join(HERE, outfile), "w", encoding="utf-8") as f:
-        f.write(html)
-    print(f"已產生加密 {outfile}（{name}，原文 {len(text)} 字）")
-
-
-def main():
-    pw = os.environ.get('LEVELS_PW')
-    if not pw:
-        print("未設定 LEVELS_PW，跳過。用法: LEVELS_PW=密碼 python build_levels_page.py")
-        return
-    for name, outfile, fn in PAGES:
-        build_page(name, fn, outfile, pw)
-
-
-if __name__ == "__main__":
-    main()
+</body></html>
