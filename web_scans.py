@@ -194,14 +194,14 @@ HOME_TPL = """<!DOCTYPE html>
   body{margin:0;background:#0d1117;color:#e6edf3;font-family:'Noto Sans TC',sans-serif;padding:14px 12px 40px}
   h1{font-size:22px;margin:2px 0 1px}
   .upd{color:#8b949e;font-size:11.5px;margin-bottom:16px}
-  .gtitle{font-size:14px;font-weight:700;margin:14px 0 8px;padding-left:2px}
-  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-  .tile{position:relative;background:#141b24;border:1px solid #222b38;border-radius:14px;padding:12px 4px 10px;text-align:center;cursor:pointer;transition:transform .12s,border-color .12s,background .12s;overflow:hidden}
-  .tile:hover,.tile:active{border-color:var(--c);background:#19222f;transform:translateY(-2px)}
-  .tile::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--c);opacity:.85}
-  .emoji{font-size:25px;line-height:1}
-  .tname{font-size:13px;font-weight:700;margin-top:6px}
-  .tdesc{font-size:10.5px;color:#8b949e;margin-top:2px}
+  .gtitle{font-size:13px;font-weight:700;margin:12px 0 6px;padding-left:2px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .tile{position:relative;background:#141b24;border:1px solid #222b38;border-radius:10px;padding:7px 3px 6px;text-align:center;cursor:pointer;transition:transform .12s,border-color .12s,background .12s;overflow:hidden}
+  .tile:hover,.tile:active{border-color:var(--c);background:#19222f;transform:translateY(-1px)}
+  .tile::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--c);opacity:.85}
+  .emoji{font-size:18px;line-height:1}
+  .tname{font-size:12px;font-weight:700;margin-top:3px}
+  .tdesc{font-size:9.5px;color:#8b949e;margin-top:1px}
 </style></head><body>
   <h1>📊 看盤總表</h1>
   <div class="upd">更新 __UPD__ · 點方塊進入，或用上面頁籤切換</div>
