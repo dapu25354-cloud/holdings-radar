@@ -7,9 +7,7 @@
 <style>
   body{margin:0;background:#0d1117;color:#e6edf3;font-family:'Noto Sans TC',sans-serif}
   .hd{padding:14px 16px 4px;font-size:18px;font-weight:700}
-  .upd{padding:0 16px 8px;color:#8b949e;font-size:12px}
-  .filt{padding:0 16px 10px;font-size:13px;color:#8b949e}
-  select{background:#161b22;color:#e6edf3;border:1px solid #30363d;border-radius:8px;padding:8px 10px;font-size:15px;max-width:220px}
+  .upd{padding:0 16px 10px;color:#8b949e;font-size:12px}
   .wrap{padding:0 10px 40px;overflow-x:auto}
   pre{font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:1.55;white-space:pre;margin:0;color:#dbe1e8}
 </style></head><body>
@@ -50,10 +48,9 @@
 </script>
 
   <div class="hd">💎 真鑽石篩選</div>
-  <div class="upd">最後更新：2026-07-05 08:18（台灣時間）</div>
-  <div class="filt">看：<select onchange="filt(this.value)"><option value="__ALL__">全部</option><option value="是方">是方</option><option value="銳澤">銳澤</option><option value="智伸科">智伸科</option><option value="均華">均華</option><option value="緯創">緯創</option><option value="世界">世界</option><option value="緯穎">緯穎</option><option value="台積電">台積電</option><option value="中信金">中信金</option><option value="國票金">國票金</option><option value="大立光">大立光</option><option value="台達電">台達電</option><option value="元大金">元大金</option><option value="長榮航">長榮航</option><option value="鑽全">鑽全</option><option value="中鋼">中鋼</option><option value="順達">順達</option><option value="研華">研華</option><option value="世禾">世禾</option><option value="汎銓">汎銓</option><option value="台新金">台新金</option><option value="統一實">統一實</option><option value="寶成">寶成</option><option value="先進光">先進光</option></select></div>
+  <div class="upd">最後更新：2026-07-05 08:38（台灣時間）</div>
   <div class="wrap"><pre id="pre"><span data-stk="__hdr__">--- 💎 真鑽石篩選器 (分清真鑽石 vs 鍍金石頭) ---
-時間: 2026-07-05 08:18:48
+時間: 2026-07-05 08:38:24
 （要抓基本面，每檔慢幾秒，請稍等）
 ==========================================================================
 </span><span data-stk="是方">  ...是方 (6561.TWO) → ⚫ 石頭(跌破年線)
@@ -179,6 +176,7 @@
 
 </span></pre></div>
 <script>
+  // 由外框頁籤列的下拉呼叫(af→這頁的 filt)。全部/某檔切換顯示。
   function filt(v){
     var ns=document.querySelectorAll('#pre span[data-stk]');
     for(var i=0;i<ns.length;i++){var o=ns[i].getAttribute('data-stk');ns[i].style.display=(v==='__ALL__'||o===v||o==='__hdr__')?'':'none';}

@@ -61,17 +61,15 @@ PAGE_TPL = """<!DOCTYPE html>
 <style>
   body{margin:0;background:#0d1117;color:#e6edf3;font-family:'Noto Sans TC',sans-serif}
   .hd{padding:14px 16px 4px;font-size:18px;font-weight:700}
-  .upd{padding:0 16px 8px;color:#8b949e;font-size:12px}
-  .filt{padding:0 16px 10px;font-size:13px;color:#8b949e}
-  select{background:#161b22;color:#e6edf3;border:1px solid #30363d;border-radius:8px;padding:8px 10px;font-size:15px;max-width:220px}
+  .upd{padding:0 16px 10px;color:#8b949e;font-size:12px}
   .wrap{padding:0 10px 40px;overflow-x:auto}
   pre{font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:1.55;white-space:pre;margin:0;color:#dbe1e8}
 </style></head><body>
   <div class="hd">__TITLE__</div>
   <div class="upd">最後更新：__UPD__（台灣時間）</div>
-  <div class="filt">看：<select onchange="filt(this.value)"><option value="__ALL__">全部</option>__SELECT__</select></div>
   <div class="wrap"><pre id="pre">__BODY__</pre></div>
 <script>
+  // 由外框頁籤列的下拉呼叫(af→這頁的 filt)。全部/某檔切換顯示。
   function filt(v){
     var ns=document.querySelectorAll('#pre span[data-stk]');
     for(var i=0;i<ns.length;i++){var o=ns[i].getAttribute('data-stk');ns[i].style.display=(v==='__ALL__'||o===v||o==='__hdr__')?'':'none';}
@@ -87,15 +85,24 @@ SHELL_TPL = """<!DOCTYPE html>
 <title>看盤總表</title>
 <style>
   html,body{margin:0;height:100%;background:#0d1117;font-family:'Noto Sans TC',sans-serif}
-  .tabbar{display:flex;gap:6px;padding:8px 8px 0;overflow-x:auto;-webkit-overflow-scrolling:touch;border-bottom:1px solid #212835}
+  .topbar{background:#0d1117;border-bottom:1px solid #212835;padding:8px 8px 0}
+  .tabbar{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch}
   .tab{flex:0 0 auto;padding:10px 16px;font-size:15px;font-weight:700;color:#8b949e;background:#161b22;border:1px solid #212835;border-bottom:none;border-radius:10px 10px 0 0;cursor:pointer;white-space:nowrap}
   .tab.active{color:#fff;background:#1f6feb;border-color:#1f6feb}
-  iframe{border:0;width:100%;height:calc(100vh - 53px);display:block;background:#0d1117}
+  .stkrow{display:flex;align-items:center;gap:8px;padding:8px 2px 6px}
+  .stkrow label{color:#8b949e;font-size:13px;white-space:nowrap}
+  #stk{background:#161b22;color:#e6edf3;border:1px solid #30363d;border-radius:8px;padding:7px 10px;font-size:15px;max-width:200px}
+  iframe{border:0;width:100%;height:calc(100vh - 102px);display:block;background:#0d1117}
 </style></head><body>
-  <div class="tabbar">__TABS__</div>
-  <iframe id="fr" src="radar.html"></iframe>
+  <div class="topbar">
+    <div class="tabbar">__TABS__</div>
+    <div class="stkrow"><label>看哪一檔：</label><select id="stk" onchange="af()"><option value="__ALL__">全部</option>__STKOPTS__</select></div>
+  </div>
+  <iframe id="fr" src="radar.html?v=__VER__" onload="af()"></iframe>
 <script>
-  function show(btn,url){document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});btn.classList.add('active');document.getElementById('fr').src=url;}
+  var VER="__VER__";
+  function show(btn,url){var t=document.querySelectorAll('.tab');for(var i=0;i<t.length;i++)t[i].classList.remove('active');btn.classList.add('active');document.getElementById('fr').src=url+'?v='+VER;}
+  function af(){var v=document.getElementById('stk').value;try{var w=document.getElementById('fr').contentWindow;if(w&&w.filt)w.filt(v);}catch(e){}}
 </script>
 </body></html>"""
 
@@ -155,12 +162,9 @@ def segment_html(text, names):
 
 
 def text_page(title, body_text, upd, names):
-    present = [n for n in names if n in body_text]          # 只列這頁真的有出現的股
-    opts = "".join('<option value="%s">%s</option>' % (esc(n), esc(n)) for n in present)
-    body = segment_html(body_text, names)
+    body = segment_html(body_text, names)   # 切段標股名，供外框下拉篩選
     html = (PAGE_TPL.replace("__TITLE__", title)
                     .replace("__UPD__", upd)
-                    .replace("__SELECT__", opts)
                     .replace("__BODY__", body))
     return lock_inject(html)
 
@@ -170,7 +174,11 @@ def shell():
     for i, (name, url) in enumerate(TABS):
         cls = "tab active" if i == 0 else "tab"
         btns += f'<button class="{cls}" onclick="show(this,\'{url}\')">{name}</button>'
-    return SHELL_TPL.replace("__TABS__", btns)
+    opts = "".join('<option value="%s">%s</option>' % (esc(n), esc(n)) for n in load_names())
+    ver = datetime.now(TW).strftime('%Y%m%d%H%M')  # 版本記號=防快取，每次更新換一個號
+    return (SHELL_TPL.replace("__TABS__", btns)
+                     .replace("__STKOPTS__", opts)
+                     .replace("__VER__", ver))
 
 
 def main():
