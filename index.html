@@ -21,9 +21,9 @@
   <div class="topbar">
     <div class="tabbar" id="tabbar"><button class="tab active" onclick="show(this,'radar.html')">庫存股雷達</button><button class="tab" onclick="show(this,'add_zone.html')">加碼區</button><button class="tab" onclick="show(this,'diamonds.html')">真鑽石篩選</button><button class="tab" onclick="show(this,'turning.html')">轉折燈</button><button class="tab" onclick="show(this,'premarket.html')">盤前國際盤</button><button class="tab" onclick="show(this,'chips.html')">法人籌碼</button><button class="tab" onclick="show(this,'rotation.html')">輪動雷達</button><button class="tab" onclick="show(this,'cpo.html')">CPO觀察</button><button class="tab" onclick="show(this,'cold.html')">冷血獵殺</button><button class="tab" onclick="show(this,'panic.html')">恐慌接刀</button><button class="tab" onclick="show(this,'secondleg.html')">第二腳</button><button class="tab" onclick="show(this,'support.html')">🛡️守線</button><button class="tab" onclick="show(this,'levels.html')">🔒關卡</button><select id="stk" onchange="apply()" title="選一檔只看它" style="display:none"><option value="__NONE__">選股票…</option></select></div>
   </div>
-  <iframe id="fr" src="radar.html?v=202607051018" onload="af()"></iframe>
+  <iframe id="fr" src="radar.html?v=202607051030" onload="af()"></iframe>
 <script>
-  var VER="202607051018", mem={}, cur="radar.html", FILTER=["radar.html", "diamonds.html", "turning.html", "chips.html", "rotation.html", "cpo.html", "cold.html", "panic.html", "secondleg.html"];   // mem:每頁記住選的股; FILTER:哪些頁籤才有下拉
+  var VER="202607051030", mem={}, cur="radar.html", FILTER=["radar.html", "diamonds.html", "turning.html", "chips.html", "rotation.html", "cpo.html", "cold.html", "panic.html", "secondleg.html"];   // mem:每頁記住選的股; FILTER:哪些頁籤才有下拉
   // 把下拉▼移到「當前頁籤」右邊；非篩選頁(盤前等)則隱藏
   function place(){
     var sel=document.getElementById('stk'), act=document.querySelector('.tab.active');

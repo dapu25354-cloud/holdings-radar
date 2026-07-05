@@ -234,9 +234,16 @@ def main():
         names = names + [nm for (_c, nm, _r) in cpo_watch.WATCH if nm not in names]
     except Exception:
         pass
+    import time
     for title, fname, fn in TEXT_TOOLS:
         print(f"產生 {title} 頁…")
         txt = capture(fn)
+        tries = 0
+        # 間歇性抓失敗(如法人籌碼的TWSE)就自動重試，避免卡成錯誤頁
+        while ("產生時出錯" in txt or len(txt.strip()) < 30) and tries < 3:
+            time.sleep(4)
+            txt = capture(fn)
+            tries += 1
         with open(os.path.join(HERE, fname), "w", encoding="utf-8") as f:
             f.write(text_page(title, txt, upd, names))
     with open(os.path.join(HERE, "index.html"), "w", encoding="utf-8") as f:

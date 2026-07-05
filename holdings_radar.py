@@ -1554,10 +1554,6 @@ def build_dashboard():
         </header>
 
         <div class="controls">
-            <div class="search-box">
-                <input type="text" id="search-input" placeholder="搜尋股票代號或名稱..." onkeyup="filterCards()">
-            </div>
-            
             <div class="filter-buttons">
                 <button class="filter-btn active" onclick="setFilter('all', this)">全部</button>
                 <button class="filter-btn" onclick="setFilter('signal', this)">⚠️ 特別訊號</button>
@@ -1606,7 +1602,8 @@ def build_dashboard():
         }}
 
         function filterCards() {{
-            const query = document.getElementById('search-input').value.toLowerCase();
+            const si = document.getElementById('search-input');
+            const query = si ? si.value.toLowerCase() : '';
             const cards = document.querySelectorAll('.card');
             
             cards.forEach(card => {{
