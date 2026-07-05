@@ -195,13 +195,13 @@ HOME_TPL = """<!DOCTYPE html>
   h1{font-size:22px;margin:2px 0 1px}
   .upd{color:#8b949e;font-size:11.5px;margin-bottom:16px}
   .gtitle{font-size:13px;font-weight:700;margin:12px 0 6px;padding-left:2px}
-  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-  .tile{position:relative;background:transparent;border:1px solid #2c3644;border-radius:4px;padding:7px 3px 6px;text-align:center;cursor:pointer;transition:border-color .12s,background .12s;overflow:hidden}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:5px}
+  .tile{position:relative;background:transparent;border:1px solid #2c3644;border-radius:4px;padding:4px 2px;text-align:center;cursor:pointer;transition:border-color .12s,background .12s;overflow:hidden}
   .tile:hover,.tile:active{border-color:var(--c);background:rgba(255,255,255,.04)}
   .tile::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--c);opacity:.8}
-  .emoji{font-size:18px;line-height:1}
-  .tname{font-size:12px;font-weight:700;margin-top:3px}
-  .tdesc{font-size:9.5px;color:#8b949e;margin-top:1px}
+  .emoji{font-size:15px;line-height:1}
+  .tname{font-size:11px;font-weight:700;margin-top:2px}
+  .tdesc{font-size:8.5px;color:#8b949e;margin-top:0;line-height:1.3}
 </style></head><body>
   <h1>📊 看盤總表</h1>
   <div class="upd">更新 __UPD__ · 點方塊進入工具，工具頁左上角「🏠首頁」可回來</div>
