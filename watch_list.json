@@ -22,5 +22,7 @@
     {"symbol": "2887.TW", "name": "台新金", "pos": "", "target": 0.0, "condition": "TP", "status": "監控中", "alerted": false},
     {"symbol": "9907.TW", "name": "統一實", "pos": "", "target": 0.0, "condition": "TP", "status": "監控中", "alerted": false},
     {"symbol": "9904.TW", "name": "寶成", "pos": "", "target": 0.0, "condition": "TP", "status": "監控中", "alerted": false},
-    {"symbol": "3362.TWO", "name": "先進光", "pos": "", "target": 0.0, "condition": "TP", "status": "監控中", "alerted": false}
+    {"symbol": "3362.TWO", "name": "先進光", "pos": "", "target": 0.0, "condition": "TP", "status": "監控中", "alerted": false},
+    {"symbol": "0050.TW", "name": "元大台灣50", "pos": "", "target": 0.0, "condition": "TP", "status": "監控中", "alerted": false},
+    {"symbol": "3450.TW", "name": "聯鈞", "pos": "", "target": 0.0, "condition": "TP", "status": "監控中", "alerted": false}
 ]
