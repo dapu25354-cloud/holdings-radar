@@ -88,7 +88,7 @@ SHELL_TPL = """<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 44'><circle cx='9' cy='35' r='5' fill='%2358a6ff'/><path d='M9 21 A14 14 0 0 1 23 35' fill='none' stroke='%2358a6ff' stroke-width='4' stroke-linecap='round'/><path d='M9 11 A24 24 0 0 1 33 35' fill='none' stroke='%2358a6ff' stroke-width='4' stroke-linecap='round' opacity='.55'/></svg>">
-<title>描訊理財網 Signope</title>
+<title>描訊星航 Signope AI</title>
 <style>
   html,body{margin:0;height:100%;background:#0d1117;font-family:'Noto Sans TC',sans-serif}
   body{display:flex;flex-direction:column}
@@ -148,6 +148,7 @@ TABS = [
     ("🍱午餐小抄", "lunch.html"),  # 私人加密頁(含部位，密文)
     ("🛡️守線", "support.html"),   # 私人加密頁(防守線+策略，密文)
     ("🔒關卡", "levels.html"),     # 私人加密頁(成本/持股，密文)
+    ("🛡️低接", "low_buy.html"),    # 私人加密頁(精密低接判定，密文)
 ]
 
 # 文字型工具：(頁面標題, 輸出檔, 要跑的函式)。加新工具在這裡加一行即可。
@@ -184,6 +185,7 @@ HOME_GROUPS = [
         ("add_zone.html", "📈", "加碼區", "拉回加碼點"),
         ("support.html", "🛡️", "守線小幫手", "防守線"),
         ("levels.html", "🎯", "關卡小工具", "成本關卡"),
+        ("low_buy.html", "🛡️", "精密低接", "下殺暫緩接"),
     ]),
 ]
 
@@ -193,7 +195,7 @@ HOME_TPL = """<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 44'><circle cx='9' cy='35' r='5' fill='%2358a6ff'/><path d='M9 21 A14 14 0 0 1 23 35' fill='none' stroke='%2358a6ff' stroke-width='4' stroke-linecap='round'/><path d='M9 11 A24 24 0 0 1 33 35' fill='none' stroke='%2358a6ff' stroke-width='4' stroke-linecap='round' opacity='.55'/></svg>">
-<title>描訊理財網 Signope</title>
+<title>描訊星航 Signope AI</title>
 <style>
   body{margin:0;background:#0d1117;color:#e6edf3;font-family:'Noto Sans TC',sans-serif;padding:14px 12px 40px}
   .brand{display:flex;align-items:center;gap:11px;margin:4px 0 3px}
@@ -217,8 +219,8 @@ HOME_TPL = """<!DOCTYPE html>
       <path d="M9 7 A28 28 0 0 1 37 35" fill="none" stroke="#58a6ff" stroke-width="3.2" stroke-linecap="round" opacity=".3"/>
     </svg>
     <div>
-      <div class="cn">描訊理財網</div>
-      <div class="en">Signope</div>
+      <div class="cn">描訊星航</div>
+      <div class="en">Signope AI</div>
     </div>
   </div>
   <div class="upd">更新 __UPD__ · 點方塊進入工具，工具頁左上角「🏠首頁」可回來</div>
@@ -304,7 +306,9 @@ def shell():
                      .replace("__TNAME__", json.dumps(tname, ensure_ascii=False)))
 
 
-def main():
+def main(only=None):
+    """only=None 時全部工具頁都重跑(舊行為)；only 給一組 key(如 {"chips","rotation"})時
+    只重新產生那幾頁，其餘工具頁不動——但 home.html / index.html 一定重寫(改版號防手機快取舊頁)。"""
     upd = now_str()
     names = load_names()
     # CPO 的股(華星光/上詮/日月光投控…)不在觀察名單裡，補進來才切得出段、下拉才列得對
@@ -313,7 +317,8 @@ def main():
     except Exception:
         pass
     import time
-    for title, fname, fn in TEXT_TOOLS:
+    tools = TEXT_TOOLS if only is None else [t for t in TEXT_TOOLS if t[1][:-5] in only]
+    for title, fname, fn in tools:
         print(f"產生 {title} 頁…")
         txt = capture(fn)
         tries = 0
@@ -328,8 +333,9 @@ def main():
         f.write(home_page(upd))
     with open(os.path.join(HERE, "index.html"), "w", encoding="utf-8") as f:
         f.write(shell())
-    print("已產生所有工具頁 + home.html + index.html(頁籤外框)")
+    print(("已產生 " + "、".join(sorted(only)) if only is not None else "已產生所有工具頁") + " + home.html + index.html(頁籤外框)")
 
 
 if __name__ == "__main__":
-    main()
+    _only = set(sys.argv[1].split(",")) if len(sys.argv) > 1 else None
+    main(_only)

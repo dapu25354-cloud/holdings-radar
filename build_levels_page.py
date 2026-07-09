@@ -28,6 +28,7 @@ ITER = 200000
 import levels_watch
 import support_level
 import add_zone
+import low_buy_advisor
 
 
 def _gen_lunch():
@@ -43,6 +44,7 @@ def _gen_lunch():
 PAGES = [
     ("關卡小工具", "levels.html", lambda: levels_watch.run()),
     ("守線小幫手", "support.html", lambda: support_level.main()),
+    ("精密低接", "low_buy.html", lambda: low_buy_advisor.print_report()),
 ]
 
 
@@ -213,16 +215,24 @@ def build_htmlpage(name, outfile, gen_fn, pw):
     print(f"已產生加密 {outfile}（{name}，整頁HTML {len(plain)} 字）")
 
 
-def main():
+def main(only=None):
+    """only=None 時四頁(levels/support/add_zone/lunch)全部重跑(舊行為)；
+    only 給一組 key(如 {"lunch"})時只重新加密那幾頁。"""
     pw = os.environ.get('LEVELS_PW')
     if not pw:
         print("未設定 LEVELS_PW，跳過。用法: LEVELS_PW=密碼 python build_levels_page.py")
         return
+    keys = only if only is not None else {"levels", "support", "add_zone", "lunch", "low_buy"}
     for name, outfile, fn in PAGES:
-        build_page(name, fn, outfile, pw)
-    build_htmlpage("加碼區", "add_zone.html", lambda: add_zone.main(), pw)
-    build_htmlpage("午餐小抄", "lunch.html", _gen_lunch, pw)
+        key = outfile[:-5]
+        if key in keys:
+            build_page(name, fn, outfile, pw)
+    if "add_zone" in keys:
+        build_htmlpage("加碼區", "add_zone.html", lambda: add_zone.main(), pw)
+    if "lunch" in keys:
+        build_htmlpage("午餐小抄", "lunch.html", _gen_lunch, pw)
 
 
 if __name__ == "__main__":
-    main()
+    _only = set(sys.argv[1].split(",")) if len(sys.argv) > 1 else None
+    main(_only)
