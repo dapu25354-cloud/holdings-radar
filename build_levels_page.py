@@ -25,6 +25,10 @@ except Exception:
 HERE = os.path.dirname(os.path.abspath(__file__))
 ITER = 200000
 
+# support_level.py 正本在專案根目錄(桌面控制台按鈕跑的也是那份)，不是 TODOLIST 這層，
+# 這裡把根目錄加進 sys.path 才會抓到正本，避免又長出一份分岔的舊複本。
+sys.path.insert(0, os.path.dirname(HERE))
+
 import levels_watch
 import support_level
 import add_zone

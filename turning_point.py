@@ -221,7 +221,10 @@ def main():
     print("-" * 76)
     for i, name, t in rows:
         nm = name + "　" * (4 - len(name))
-        print(f"  {i:<4}{t['light']:<3}{nm}{t['close']:>8.1f}{t['chg']:>+7.1f}{t['vr']:>6.2f}{t['rsi']:>5.0f}  {t['act']}")
+        vtag = "放量" if t['vr'] >= 1.5 else ("量縮" if t['vr'] <= 0.6 else "量平")
+        rtag = "過熱" if t['rsi'] >= 70 else ("超賣" if t['rsi'] <= 30 else "正常")
+        print(f"  {i:<4}{t['light']:<3}{nm}{t['close']:>8.1f}{t['chg']:>+7.1f}"
+              f"{t['vr']:>6.2f}({vtag}){t['rsi']:>5.0f}({rtag})  {t['act']}")
     print("=" * 76)
     downs = [r[1] for r in rows if r[2]["light"] == "🔻" and r[2].get("strong") is not True]
     downs_wash = [r[1] for r in rows if r[2]["light"] == "🔻" and r[2].get("strong") is True]
