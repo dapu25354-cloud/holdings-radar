@@ -696,7 +696,9 @@ def pos_badge(pos):
             f'border:1px solid {color}55">{pos}</span>')
 
 
-def build_dashboard():
+def collect_radar_results():
+    """抓資料的部分獨立出來，網頁版(build_dashboard)跟主控台版(console_report)共用，
+    不要各抓一次、兜出不一樣的數字。"""
     watchlist_path = os.path.join(os.path.dirname(__file__), "watch_list.json")
     pos_map = {}
     if os.path.exists(watchlist_path):
@@ -706,13 +708,13 @@ def build_dashboard():
             pos_map = {item["symbol"]: item.get("pos", "") for item in data}
     else:
         watchlist = list(STOCK_NAMES.keys())
-        
+
     print("開始快取籌碼與融資券數據...")
     try:
         warm_chip_cache(10)
     except Exception as e:
         print(f"快取籌碼出錯: {e}")
-        
+
     fetch_warning_stocks()
 
     print("開始判斷各股體質(真鑽石/石頭，循序抓避免誤判)...")
@@ -724,9 +726,41 @@ def build_dashboard():
     # 併發降到4，太多同時打 yfinance 會觸發 401 讓部分股票漏抓
     with ThreadPoolExecutor(max_workers=4) as executor:
         results = list(executor.map(analyze_stock, watchlist))
-        
+
     valid_results = [r for r in results if r]
-    
+    return valid_results, pos_map
+
+
+def console_report():
+    """主控台文字版：跟網頁版(build_dashboard)抓同一份資料，不用開瀏覽器就能看。
+    白話講怎麼判斷 + 附實際數字，跟其他工具同一套原則。"""
+    valid_results, _ = collect_radar_results()
+    now_str = now_tw().strftime('%Y-%m-%d %H:%M:%S')
+
+    def vtag(rsi):
+        return "過熱" if rsi >= 70 else ("超賣" if rsi <= 30 else "正常")
+
+    print("\n" + "=" * 70)
+    print(f"  庫存股雷達 — 主控台版  ({now_str})")
+    print("=" * 70)
+
+    for r in sorted(valid_results, key=lambda x: -x["score"]):
+        grade = r.get("q_grade") or "—"
+        print(f"\n{r['stars']} {r['name']}({r['symbol']})  體質:{grade}")
+        print(f"  市價 {r['price']:.2f}（{r['change_pct']:+.1f}%）"
+              f"  月線 {r['ma20']:.1f}  季線 {r['ma60']:.1f}  RSI {r['rsi']:.0f}({vtag(r['rsi'])})")
+        print(f"  {r['trend_status']} — {r['strategy_desc']}")
+        if r.get('buy_range'):
+            print(f"  可加碼區：{r['buy_range']}    防守線：{r.get('stop_loss', '—')}")
+        if r['extra_badges']:
+            print("  " + "、".join(r['extra_badges']))
+
+    print("\n" + "=" * 70)
+    print(f"  共 {len(valid_results)} 檔。網頁版(描訊理財網)是同一份資料，用來手機看/分享。")
+
+
+def build_dashboard():
+    valid_results, pos_map = collect_radar_results()
     now_str = now_tw().strftime('%Y-%m-%d %H:%M:%S')
     
     # 建立卡片 HTML
@@ -1762,4 +1796,7 @@ def build_dashboard():
     print(f"成功產生靜態網頁: {output_path}")
 
 if __name__ == "__main__":
-    build_dashboard()
+    if len(sys.argv) > 1 and sys.argv[1] == "console":
+        console_report()
+    else:
+        build_dashboard()
