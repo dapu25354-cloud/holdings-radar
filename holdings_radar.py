@@ -747,6 +747,8 @@ def console_report():
     for r in sorted(valid_results, key=lambda x: -x["score"]):
         grade = r.get("q_grade") or "—"
         print(f"\n{r['stars']} {r['name']}({r['symbol']})  體質:{grade}")
+        if r.get("q_reason"):
+            print(f"  → {r['q_reason']}")
         print(f"  市價 {r['price']:.2f}（{r['change_pct']:+.1f}%）"
               f"  月線 {r['ma20']:.1f}  季線 {r['ma60']:.1f}  RSI {r['rsi']:.0f}({vtag(r['rsi'])})")
         print(f"  {r['trend_status']} — {r['strategy_desc']}")
